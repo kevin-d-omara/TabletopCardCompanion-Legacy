@@ -65,8 +65,7 @@ namespace TabletopCardCompanion.TouchScriptCustom.Gestures
             {
                 var hit = pointer.GetOverData();
                 var target = hit.Target;
-
-                if (target == null) Debug.Log("null!!");
+                if (target == null) continue;
 
                 var gestures = target.GetComponentsInParent<Gesture>();
                 _sharedGestures = _sharedGestures.Concat(gestures);
