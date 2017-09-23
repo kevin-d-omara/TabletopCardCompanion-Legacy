@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using TouchScript.Gestures;
-using TouchScript.Gestures.TransformGestures;
-using TouchScript.Gestures.TransformGestures.Clustered;
+﻿using TouchScript.Gestures.TransformGestures;
 using UnityEngine;
 
 namespace TabletopCardCompanion
@@ -17,20 +12,29 @@ namespace TabletopCardCompanion
     public class CameraController : MonoBehaviour
     {
         [Header("Camera")]
-        [SerializeField] private Camera _cam;
+        [SerializeField] private Camera _cam; // Note: multiplayer: 1 personal camera per player, ~9 shared cameras/views
+
+        [Header("Table")]
+        [SerializeField] private GameObject table;
 
         [Header("Pan")]
         // TODO: make pan be 1:1 with pointer movement, regardless of screen size/dpi
-        [Range(0.0f, 1.0f)] public float PanSpeed = 0.05f;
-        [Range(0.0f, 1.0f)] public float PanZoomLevelMultiplier = 0.05f;
+        [SerializeField] [Range(0.0f, 1.0f)] private float PanSpeed = 0.05f;
+        [SerializeField] [Range(0.0f, 1.0f)] private float PanZoomLevelMultiplier = 0.05f;
+        [SerializeField] private Vector2 panBounds;
 
         [Header("Zoom")]
-        [SerializeField] private float minZoom;
-        [SerializeField] private float maxZoom;
+        [SerializeField] private Vector2 zoomBounds;
 
         [Header("Gestures")]
         [SerializeField] private ScreenTransformGesture _oneFingerPanGesture;
         [SerializeField] private ScreenTransformGesture _clusteredMoveGesture;
+
+        private void Start()
+        {
+            var tableSprite = table.GetComponent<SpriteRenderer>().sprite;
+            panBounds = tableSprite.bounds.extents; // TODO: make TableController script w/ callback for updating table sprite
+        }
 
         private void OnEnable()
         {
@@ -61,7 +65,10 @@ namespace TabletopCardCompanion
         private void Pan(Vector3 deltaPosition)
         {
             var multiplier = PanSpeed * (_cam.orthographicSize * PanZoomLevelMultiplier);
-            _cam.transform.position -= deltaPosition * multiplier;
+            var newPosition = _cam.transform.position - deltaPosition * multiplier;
+            newPosition.x = Bound(newPosition.x, -panBounds.x, panBounds.x);
+            newPosition.y = Bound(newPosition.y, -panBounds.y, panBounds.y);
+            _cam.transform.position = newPosition;
         }
 
         /// <summary>
@@ -70,9 +77,21 @@ namespace TabletopCardCompanion
         private void Zoom(float deltaScale)
         {
             var newSize = _cam.orthographicSize * (2f - deltaScale); // reflect about 1.0
-            if (newSize < minZoom) newSize = minZoom;
-            if (newSize > maxZoom) newSize = maxZoom;
-            _cam.orthographicSize = newSize;
+            _cam.orthographicSize = Bound(newSize, zoomBounds.x, zoomBounds.y);
+        }
+
+        /// <summary>
+        /// Make sure value is between min and max.
+        /// </summary>
+        /// <param name="value">Value to check.</param>
+        /// <param name="min">Maximum value allowed.</param>
+        /// <param name="max">Minimum value allowed.</param>
+        /// <returns><c>value</c> if it is between min and max; <c>min</c> or <c>max</c> otherwise.</returns>
+        private float Bound(float value, float min, float max)
+        {
+            if (value < min) return min;
+            if (value > max) return max;
+            return value;
         }
     }
 }
