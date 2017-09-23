@@ -232,7 +232,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4164526580090088, guid: afa97de611e1d21418b656583a32f6e8, type: 2}
       propertyPath: m_RootOrder
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 1813198393676902, guid: afa97de611e1d21418b656583a32f6e8, type: 2}
       propertyPath: m_Name
@@ -283,7 +283,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4164526580090088, guid: afa97de611e1d21418b656583a32f6e8, type: 2}
       propertyPath: m_RootOrder
-      value: 4
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 1813198393676902, guid: afa97de611e1d21418b656583a32f6e8, type: 2}
       propertyPath: m_Name
@@ -334,7 +334,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4164526580090088, guid: afa97de611e1d21418b656583a32f6e8, type: 2}
       propertyPath: m_RootOrder
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: afa97de611e1d21418b656583a32f6e8, type: 2}
@@ -434,12 +434,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _cam: {fileID: 1190055932}
   table: {fileID: 1977963532}
-  PanSpeed: 0.05
+  PanSpeedTouch: 0.05
+  PanSpeekKeyboard: 1
   PanZoomLevelMultiplier: 0.05
   panBounds: {x: 10, y: 10}
   zoomBounds: {x: 2.5, y: 10}
-  minZoom: 2.5
-  maxZoom: 10
   _oneFingerPanGesture: {fileID: 1016290033}
   _clusteredMoveGesture: {fileID: 1016290038}
 --- !u!4 &1016290036

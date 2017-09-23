@@ -5,9 +5,13 @@ namespace TabletopCardCompanion
 {
     /// <summary>
     /// Controls the main camera, which responds to the following behavior:
+    /// Touch
     ///     Zoom (2-finger) (pinch/pull)
     ///     Pan  (2-finger) (drag both fingers in same direction)
     ///     Pan  (1-finger) (drag; only works if starting touch point hits no other objects)
+    /// Keyboard/Mouse
+    ///     Zoom (Scroll Wheel)
+    ///     Pan  (WASD and Arrow Keys)
     /// </summary>
     public class CameraController : MonoBehaviour
     {
@@ -19,7 +23,8 @@ namespace TabletopCardCompanion
 
         [Header("Pan")]
         // TODO: make pan be 1:1 with pointer movement, regardless of screen size/dpi
-        [SerializeField] [Range(0.0f, 1.0f)] private float PanSpeed = 0.05f;
+        [SerializeField] [Range(0.0f, 1.0f)] private float PanSpeedTouch = 0.05f;
+        [SerializeField] [Range(1.0f, 100.0f)] private float PanSpeedKeyboard = 1f;
         [SerializeField] [Range(0.0f, 1.0f)] private float PanZoomLevelMultiplier = 0.05f;
         [SerializeField] private Vector2 panBounds;
 
@@ -48,32 +53,54 @@ namespace TabletopCardCompanion
             _clusteredMoveGesture.Transformed -= ClusteredMoveHandler;
         }
 
+        /// <summary>
+        /// Pan the camera by touch input.
+        /// </summary>
         public void OneFingerPanHandler(object sender, System.EventArgs e)
         {
-            Pan(_oneFingerPanGesture.DeltaPosition);
+            Pan(-_oneFingerPanGesture.DeltaPosition, PanSpeedTouch);
         }
 
+        /// <summary>
+        /// Pan and Zoom the camera by touch input.
+        /// </summary>
         public void ClusteredMoveHandler(object sender, System.EventArgs e)
         {
-            Pan(_clusteredMoveGesture.DeltaPosition);
+            Pan(-_clusteredMoveGesture.DeltaPosition, PanSpeedTouch);
             Zoom(_clusteredMoveGesture.DeltaScale);
         }
 
         /// <summary>
-        /// Pan the camera opposite of the direction moved.
+        /// Pan and Zoom the camera by keyboard/mouse input.
         /// </summary>
-        private void Pan(Vector3 deltaPosition)
+        private void Update()
         {
-            var multiplier = PanSpeed * (_cam.orthographicSize * PanZoomLevelMultiplier);
-            var newPosition = _cam.transform.position - deltaPosition * multiplier;
+            var dx = Input.GetAxis("Horizontal");
+            var dy = Input.GetAxis("Vertical");
+            Pan(new Vector3(dx, dy, 0f), PanSpeedKeyboard);
+
+            var dS = Input.GetAxis("Mouse ScrollWheel");
+            Zoom(dS + 1.0f);
+        }
+
+        /// <summary>
+        /// Pan the camera in a direction.
+        /// </summary>
+        /// <param name="deltaPosition">Direction & magnitude to move the camera.</param>
+        /// <param name="speed">Multiplier to affect distance moved.</param>
+        private void Pan(Vector3 deltaPosition, float speed)
+        {
+            var multiplier = speed * (_cam.orthographicSize * PanZoomLevelMultiplier);
+            var newPosition = _cam.transform.position + deltaPosition * multiplier;
             newPosition.x = Bound(newPosition.x, -panBounds.x, panBounds.x);
             newPosition.y = Bound(newPosition.y, -panBounds.y, panBounds.y);
             _cam.transform.position = newPosition;
         }
 
         /// <summary>
-        /// Zoom the camera in the standard way: pinch == zoom out, pull == zoom in
+        /// Zoom the camera in or out.
         /// </summary>
+        /// <param name="deltaScale">Relative amount to zoom; should be approximately 1.0.</param>
         private void Zoom(float deltaScale)
         {
             var newSize = _cam.orthographicSize * (2f - deltaScale); // reflect about 1.0
