@@ -345,15 +345,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 635ba6b370af7df4c9428e89567495ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _cam: {fileID: 1190055932}
+  activeCamera: {fileID: 1190055932}
   table: {fileID: 1977963532}
-  PanSpeedTouch: 0.05
-  PanSpeedKeyboard: 1
-  PanZoomLevelMultiplier: 0.05
+  panSpeedTouch: 0.05
+  panSpeedKeyboard: 1
+  panZoomLevelMultiplier: 0.05
   panBounds: {x: 10, y: 10}
   zoomBounds: {x: 2.5, y: 10}
-  _oneFingerPanGesture: {fileID: 1016290033}
-  _clusteredMoveGesture: {fileID: 1016290038}
+  oneFingerPanGesture: {fileID: 1016290033}
+  clusteredMoveGesture: {fileID: 1016290038}
 --- !u!4 &1016290036
 Transform:
   m_ObjectHideFlags: 0

@@ -15,25 +15,24 @@ namespace TabletopCardCompanion
     /// </summary>
     public class CameraController : MonoBehaviour
     {
-        [Header("Camera")]
-        [SerializeField] private Camera _cam; // Note: multiplayer: 1 personal camera per player, ~9 shared cameras/views
+        [SerializeField] private Camera activeCamera; // Note: multiplayer: 1 personal camera per player, ~9 shared cameras/views
 
         [Header("Table")]
         [SerializeField] private GameObject table;
 
         [Header("Pan")]
         // TODO: make pan be 1:1 with pointer movement, regardless of screen size/dpi
-        [SerializeField] [Range(0.0f, 1.0f)] private float PanSpeedTouch = 0.05f;
-        [SerializeField] [Range(1.0f, 100.0f)] private float PanSpeedKeyboard = 1f;
-        [SerializeField] [Range(0.0f, 1.0f)] private float PanZoomLevelMultiplier = 0.05f;
+        [SerializeField] [Range(0.0f,   1.0f)] private float panSpeedTouch = 0.05f;
+        [SerializeField] [Range(1.0f, 100.0f)] private float panSpeedKeyboard = 1f;
+        [SerializeField] [Range(0.0f,   1.0f)] private float panZoomLevelMultiplier = 0.05f;
         [SerializeField] private Vector2 panBounds;
 
         [Header("Zoom")]
         [SerializeField] private Vector2 zoomBounds;
 
         [Header("Gestures")]
-        [SerializeField] private ScreenTransformGesture _oneFingerPanGesture;
-        [SerializeField] private ScreenTransformGesture _clusteredMoveGesture;
+        [SerializeField] private ScreenTransformGesture oneFingerPanGesture;
+        [SerializeField] private ScreenTransformGesture clusteredMoveGesture;
 
         private void Start()
         {
@@ -43,14 +42,14 @@ namespace TabletopCardCompanion
 
         private void OnEnable()
         {
-            _oneFingerPanGesture.Transformed  += OneFingerPanHandler;
-            _clusteredMoveGesture.Transformed += ClusteredMoveHandler;
+            oneFingerPanGesture.Transformed  += OneFingerPanHandler;
+            clusteredMoveGesture.Transformed += ClusteredMoveHandler;
         }
 
         private void OnDisable()
         {
-            _oneFingerPanGesture.Transformed -= OneFingerPanHandler;
-            _clusteredMoveGesture.Transformed -= ClusteredMoveHandler;
+            oneFingerPanGesture.Transformed -= OneFingerPanHandler;
+            clusteredMoveGesture.Transformed -= ClusteredMoveHandler;
         }
 
         /// <summary>
@@ -58,7 +57,7 @@ namespace TabletopCardCompanion
         /// </summary>
         public void OneFingerPanHandler(object sender, System.EventArgs e)
         {
-            Pan(-_oneFingerPanGesture.DeltaPosition, PanSpeedTouch);
+            Pan(-oneFingerPanGesture.DeltaPosition, panSpeedTouch);
         }
 
         /// <summary>
@@ -66,8 +65,8 @@ namespace TabletopCardCompanion
         /// </summary>
         public void ClusteredMoveHandler(object sender, System.EventArgs e)
         {
-            Pan(-_clusteredMoveGesture.DeltaPosition, PanSpeedTouch);
-            Zoom(_clusteredMoveGesture.DeltaScale);
+            Pan(-clusteredMoveGesture.DeltaPosition, panSpeedTouch);
+            Zoom(clusteredMoveGesture.DeltaScale);
         }
 
         /// <summary>
@@ -77,7 +76,7 @@ namespace TabletopCardCompanion
         {
             var dx = Input.GetAxis("Horizontal");
             var dy = Input.GetAxis("Vertical");
-            Pan(new Vector3(dx, dy, 0f), PanSpeedKeyboard);
+            Pan(new Vector3(dx, dy, 0f), panSpeedKeyboard);
 
             var dS = Input.GetAxis("Mouse ScrollWheel");
             Zoom(dS + 1.0f);
@@ -90,11 +89,11 @@ namespace TabletopCardCompanion
         /// <param name="speed">Multiplier to affect distance moved.</param>
         private void Pan(Vector3 deltaPosition, float speed)
         {
-            var multiplier = speed * (_cam.orthographicSize * PanZoomLevelMultiplier);
-            var newPosition = _cam.transform.position + deltaPosition * multiplier;
+            var multiplier = speed * (activeCamera.orthographicSize * panZoomLevelMultiplier);
+            var newPosition = activeCamera.transform.position + deltaPosition * multiplier;
             newPosition.x = Bound(newPosition.x, -panBounds.x, panBounds.x);
             newPosition.y = Bound(newPosition.y, -panBounds.y, panBounds.y);
-            _cam.transform.position = newPosition;
+            activeCamera.transform.position = newPosition;
         }
 
         /// <summary>
@@ -103,8 +102,8 @@ namespace TabletopCardCompanion
         /// <param name="deltaScale">Relative amount to zoom; should be approximately 1.0.</param>
         private void Zoom(float deltaScale)
         {
-            var newSize = _cam.orthographicSize * (2f - deltaScale); // reflect about 1.0
-            _cam.orthographicSize = Bound(newSize, zoomBounds.x, zoomBounds.y);
+            var newSize = activeCamera.orthographicSize * (2f - deltaScale); // reflect about 1.0
+            activeCamera.orthographicSize = Bound(newSize, zoomBounds.x, zoomBounds.y);
         }
 
         /// <summary>

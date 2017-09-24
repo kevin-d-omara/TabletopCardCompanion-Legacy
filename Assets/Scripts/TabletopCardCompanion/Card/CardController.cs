@@ -1,7 +1,7 @@
 ﻿using TouchScript.Gestures;
 using UnityEngine;
 
-namespace TabletopCardCompanion
+namespace TabletopCardCompanion.Card
 {
     [RequireComponent(typeof(BoxCollider2D))]
     [RequireComponent(typeof(TapGesture))]

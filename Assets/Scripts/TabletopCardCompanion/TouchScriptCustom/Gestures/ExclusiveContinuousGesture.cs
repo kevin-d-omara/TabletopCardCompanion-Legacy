@@ -28,7 +28,7 @@ namespace TabletopCardCompanion.TouchScriptCustom.Gestures
         /// All gestures which have received pointers.
         /// </summary>
         // TODO: store only gestures sharing pointers with ExclusiveGesture
-        private IEnumerable<Gesture> _sharedGestures = new List<Gesture>();
+        private IEnumerable<Gesture> sharedGestures = new List<Gesture>();
 
         private void Start()
         {
@@ -68,7 +68,7 @@ namespace TabletopCardCompanion.TouchScriptCustom.Gestures
                 if (target == null) continue;
 
                 var gestures = target.GetComponentsInParent<Gesture>();
-                _sharedGestures = _sharedGestures.Concat(gestures);
+                sharedGestures = sharedGestures.Concat(gestures);
             }
 
             // When ExclusiveGesture becomes Possible, cancel all other gestures.
@@ -93,7 +93,7 @@ namespace TabletopCardCompanion.TouchScriptCustom.Gestures
                 case Gesture.GestureState.Ended:
                 case Gesture.GestureState.Cancelled:
                 case Gesture.GestureState.Failed:
-                    _sharedGestures = new List<Gesture>();
+                    sharedGestures = new List<Gesture>();
                     break;
             }
         }
@@ -103,7 +103,7 @@ namespace TabletopCardCompanion.TouchScriptCustom.Gestures
         /// </summary>
         private void CancelGestures()
         {
-            foreach (Gesture gesture in _sharedGestures)
+            foreach (Gesture gesture in sharedGestures)
             {
                 if (gesture != ExclusiveGesture)
                 {
