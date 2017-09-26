@@ -42,6 +42,7 @@ namespace TabletopCardCompanion
             var newSprite = isFront ? back : front;
             isFront = !isFront;
 
+            // (?) scale x or rotate?
             // Lerp rectTransform.x to zero.
             // Image.sprite = newSprite
             // var newWidth = newSprite.width

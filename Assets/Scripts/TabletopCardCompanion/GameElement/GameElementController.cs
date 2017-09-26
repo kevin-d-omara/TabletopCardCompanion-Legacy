@@ -1,42 +1,95 @@
-﻿using TouchScript.Gestures;
+﻿using TouchScript.Behaviors;
+using TouchScript.Gestures;
 using TouchScript.Gestures.TransformGestures;
 using UnityEngine;
 
-namespace TabletopCardCompanion.Card
+namespace TabletopCardCompanion.GameElement
 {
-    [RequireComponent(typeof(BoxCollider2D))]
+    /// <summary>
+    /// Base class for all TabletopCardCompanion game pieces.
+    /// </summary>
     [RequireComponent(typeof(TapGesture))]
+    [RequireComponent(typeof(BoxCollider2D))]
     [RequireComponent(typeof(TransformGesture))]
-    public class CardController : MonoBehaviour
+    [RequireComponent(typeof(Transformer))]
+    public class GameElementController : MonoBehaviour
     {
-        [SerializeField] private TwoSidedImage twoSidedImage;
+        #region Constants
+
+        /// <summary>
+        /// Height to raise objects when lifted.
+        /// </summary>
+        protected static readonly float LIFT_HEIGHT = 5f;
+
+        /// <summary>
+        /// Vertical buffer between objects on top of each other.
+        /// </summary>
+        protected static readonly float HEIGHT_BUFFER = 0.01f;
+
+        #endregion
+
+        #region Events
+
+
+
+        #endregion
+
+        #region Public Properties
+
+        public ToggleOptions Toggles { get; protected set; } = new ToggleOptions();
+
+        #endregion
+
+        #region Private/Protected Variables
 
         // Components
-        private BoxCollider2D boxCollider;
-        private TapGesture tapGesture;
-        private TransformGesture transformGesture;
+        protected TapGesture tapGesture;
+        protected BoxCollider2D boxCollider;
+        protected TransformGesture transformGesture;
 
-        private void Awake()
+        // Child Game Objects
+        [SerializeField] protected GameObject canvasObject;
+        [SerializeField] protected GameObject imageObject;
+
+        // Child Components
+        protected TwoSidedImage twoSidedImage;
+
+        #endregion
+
+        #region Public Methods
+
+
+
+        #endregion
+
+        #region Unity Methods
+
+        protected void Awake()
         {
-            boxCollider = GetComponent<BoxCollider2D>();
+            // Components
             tapGesture = GetComponent<TapGesture>();
+            boxCollider = GetComponent<BoxCollider2D>();
             transformGesture = GetComponent<TransformGesture>();
+
+            // Child Components
+            twoSidedImage = imageObject.GetComponent<TwoSidedImage>();
         }
 
-        private void OnEnable()
+        protected void OnEnable()
         {
             tapGesture.Tapped += TappedHandler;
             twoSidedImage.SizeChanged += SizeChangedHandler;
             transformGesture.StateChanged += TransformStateChangedHandler;
         }
 
-        private void OnDisable()
+        protected void OnDisable()
         {
             tapGesture.Tapped -= TappedHandler;
             twoSidedImage.SizeChanged -= SizeChangedHandler;
             transformGesture.StateChanged -= TransformStateChangedHandler;
         }
 
+        #if UNITY_STANDALONE
         /// <summary>
         /// Check for keyboard / mouse input while the mouse is hovering over this object.
         /// </summary>
@@ -47,52 +100,64 @@ namespace TabletopCardCompanion.Card
                 twoSidedImage.Flip();
             }
         }
+        #endif
+
+        #endregion
+
+        #region Protected Methods
+
+
+
+        #endregion
+
+        #region Callbacks
+
+
+
+        #endregion
+
+        #region Private Methods
+
+
+
+        #endregion
+
+        #region Event Handlers
 
         /// <summary>
         /// Flip the card over when tapped.
         /// </summary>
-        private void TappedHandler(object sender, System.EventArgs e)
+        protected void TappedHandler(object sender, System.EventArgs e)
         {
             twoSidedImage.Flip();
+            // TODO: magnify object instead of flipping
         }
 
         /// <summary>
-        /// Resize the BoxCollider2D size to match the new image.
+        /// Resize collider to match the new image.
         /// </summary>
-        private void SizeChangedHandler(object sender, Bounds bounds)
+        protected void SizeChangedHandler(object sender, Bounds bounds)
         {
             boxCollider.size = bounds.size;
         }
 
+        #endregion
 
+        #region Temporary
 
-        // Object movement -------------------------------------------------------------------------
-
-        public static readonly float LIFT_HEIGHT = 5f;     // height to raise objects when lifted
-        public static readonly float HEIGHT_BUFFER = 0.01f;  // vertical buffer between objects on top of each other
-
-        // Toggles
-        /// <summary>
-        /// Freezes the object in place stopping all physics interactions.
-        /// </summary>
-        public bool TransformLocked { get; private set; }
-
-        /// <summary>
-        /// When picked up objects above this one will be attached to it.
-        /// </summary>
-        public bool IsSticky { get; private set; } = true;
-
-        private bool isMoving;
+        // Object Movement -------------------------------------------------------------------------
+        // \!/ This is going to be moved to a new TouchScript Behavior.
+        protected bool isMoving;
 
         /// <summary>
         /// Object is picked up, moved, or set down.
         /// </summary>
-        private void TransformStateChangedHandler(object sender, GestureStateChangeEventArgs gestureStateChangeEventArgs)
+        protected void TransformStateChangedHandler(object sender, GestureStateChangeEventArgs gestureStateChangeEventArgs)
         {
             switch (gestureStateChangeEventArgs.State)
             {
                 case Gesture.GestureState.Possible:
-                    if (TransformLocked) transformGesture.Cancel();
+                    if (Toggles.Locked) transformGesture.Cancel();
                     break;
                 case Gesture.GestureState.Changed:
                     if (!isMoving) PickUp();
@@ -115,7 +180,7 @@ namespace TabletopCardCompanion.Card
             transform.position += Vector3.back * LIFT_HEIGHT;
         }
 
-        private void Move() {}
+        private void Move() { }
 
         private void SetDown()
         {
@@ -134,5 +199,7 @@ namespace TabletopCardCompanion.Card
                 transform.position += Vector3.forward * -transform.position.z;
             }
         }
+
+        #endregion
     }
 }
