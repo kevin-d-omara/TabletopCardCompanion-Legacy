@@ -15,7 +15,10 @@ namespace TabletopCardCompanion
     /// </summary>
     public class CameraController : MonoBehaviour
     {
-        [SerializeField] private Camera activeCamera; // Note: multiplayer: 1 personal camera per player, ~9 shared cameras/views
+        // TODO: make this singleton
+
+        // Note: multiplayer: 1 personal camera per player, ~9 shared cameras/views
+        public Camera ActiveCamera { get; private set; }
 
         [Header("Table")]
         [SerializeField] private GameObject table;
@@ -33,6 +36,11 @@ namespace TabletopCardCompanion
         [Header("Gestures")]
         [SerializeField] private ScreenTransformGesture oneFingerPanGesture;
         [SerializeField] private ScreenTransformGesture clusteredMoveGesture;
+
+        private void Awake()
+        {
+            ActiveCamera = Camera.main;
+        }
 
         private void Start()
         {
@@ -89,11 +97,11 @@ namespace TabletopCardCompanion
         /// <param name="speed">Multiplier to affect distance moved.</param>
         private void Pan(Vector3 deltaPosition, float speed)
         {
-            var multiplier = speed * (activeCamera.orthographicSize * panZoomLevelMultiplier);
-            var newPosition = activeCamera.transform.position + deltaPosition * multiplier;
+            var multiplier = speed * (ActiveCamera.orthographicSize * panZoomLevelMultiplier);
+            var newPosition = ActiveCamera.transform.position + deltaPosition * multiplier;
             newPosition.x = Bound(newPosition.x, -panBounds.x, panBounds.x);
             newPosition.y = Bound(newPosition.y, -panBounds.y, panBounds.y);
-            activeCamera.transform.position = newPosition;
+            ActiveCamera.transform.position = newPosition;
         }
 
         /// <summary>
@@ -102,8 +110,8 @@ namespace TabletopCardCompanion
         /// <param name="deltaScale">Relative amount to zoom; should be approximately 1.0.</param>
         private void Zoom(float deltaScale)
         {
-            var newSize = activeCamera.orthographicSize * (2f - deltaScale); // reflect about 1.0
-            activeCamera.orthographicSize = Bound(newSize, zoomBounds.x, zoomBounds.y);
+            var newSize = ActiveCamera.orthographicSize * (2f - deltaScale); // reflect about 1.0
+            ActiveCamera.orthographicSize = Bound(newSize, zoomBounds.x, zoomBounds.y);
         }
 
         /// <summary>

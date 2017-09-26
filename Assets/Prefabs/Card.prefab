@@ -62,7 +62,7 @@ GameObject:
   - component: {fileID: 114944423752004292}
   m_Layer: 0
   m_Name: Card
-  m_TagString: Untagged
+  m_TagString: Game Element
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -296,12 +296,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 978a486d8ecf8437cbb87e8534908895, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enableSmoothing: 0
-  smoothingFactor: 0.00001
+  enableSmoothing: 1
+  smoothingFactor: 0
   positionThreshold: 0.010000001
   rotationThreshold: 0.1
   scaleThreshold: 0.010000001
-  allowChangingFromOutside: 0
+  allowChangingFromOutside: 1
 --- !u!222 &222203957178896932
 CanvasRenderer:
   m_ObjectHideFlags: 1
