@@ -1,4 +1,5 @@
-﻿using TouchScript.Behaviors;
+﻿using System;
+using TouchScript.Behaviors;
 using TouchScript.Gestures;
 using TouchScript.Gestures.TransformGestures;
 using UnityEngine;
@@ -6,13 +7,13 @@ using UnityEngine;
 namespace TabletopCardCompanion.GameElement
 {
     /// <summary>
-    /// Base class for all TabletopCardCompanion game pieces.
+    /// Abstract base class for all TabletopCardCompanion game pieces.
     /// </summary>
     [RequireComponent(typeof(TapGesture))]
     [RequireComponent(typeof(BoxCollider2D))]
     [RequireComponent(typeof(TransformGesture))]
     [RequireComponent(typeof(Transformer))]
-    public class GameElementController : MonoBehaviour
+    public abstract class GameElementController : MonoBehaviour
     {
         #region Constants
 
@@ -47,45 +48,56 @@ namespace TabletopCardCompanion.GameElement
         protected BoxCollider2D boxCollider;
         protected TransformGesture transformGesture;
 
-        // Child Game Objects
-        [SerializeField] protected GameObject canvasObject;
-        [SerializeField] protected GameObject imageObject;
-
-        // Child Components
-        protected TwoSidedImage twoSidedImage;
-
         #endregion
 
         #region Public Methods
 
+        public abstract void Flip();
 
+        public void RotateLeft()
+        {
+            // TODO: create global "TransformSettings" w/ RotateDegrees = 15, 30, .. 90
+            throw new NotImplementedException();
+        }
+
+        public void RotateRight()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ScaleDown()
+        {
+            // TODO: scale in integer amounts (i.e. have scale 1 to 20 or something)
+            // TODO: cache original value? (i.e. cards prefer to start at 50%)
+            throw new NotImplementedException();
+        }
+
+        public void ScaleUp()
+        {
+            throw new NotImplementedException();
+        }
 
         #endregion
 
         #region Unity Methods
 
-        protected void Awake()
+        protected virtual void Awake()
         {
             // Components
             tapGesture = GetComponent<TapGesture>();
             boxCollider = GetComponent<BoxCollider2D>();
             transformGesture = GetComponent<TransformGesture>();
-
-            // Child Components
-            twoSidedImage = imageObject.GetComponent<TwoSidedImage>();
         }
 
-        protected void OnEnable()
+        protected virtual void OnEnable()
         {
             tapGesture.Tapped += TappedHandler;
-            twoSidedImage.SizeChanged += SizeChangedHandler;
             transformGesture.StateChanged += TransformStateChangedHandler;
         }
 
-        protected void OnDisable()
+        protected virtual void OnDisable()
         {
             tapGesture.Tapped -= TappedHandler;
-            twoSidedImage.SizeChanged -= SizeChangedHandler;
             transformGesture.StateChanged -= TransformStateChangedHandler;
         }
 
@@ -93,11 +105,23 @@ namespace TabletopCardCompanion.GameElement
         /// <summary>
         /// Check for keyboard / mouse input while the mouse is hovering over this object.
         /// </summary>
-        private void OnMouseOver()
+        protected void OnMouseOver()
         {
             if (Input.GetButtonDown("Flip"))
             {
-                twoSidedImage.Flip();
+                Flip();
+            }
+            if (Input.GetButtonDown("Rotate")) // TODO: replace w/ GetButton for continuous action
+            {
+                var dir = Input.GetAxis("Rotate");
+                if (dir > 0f) RotateRight();
+                if (dir < 0f) RotateLeft();
+            }
+            if (Input.GetButtonDown("Scale")) // TODO: replace w/ GetButton for continuous action
+            {
+                var dir = Input.GetAxis("Scale");
+                if (dir > 0f) ScaleUp();
+                if (dir < 0f) ScaleDown();
             }
         }
         #endif
@@ -127,18 +151,10 @@ namespace TabletopCardCompanion.GameElement
         /// <summary>
         /// Flip the card over when tapped.
         /// </summary>
-        protected void TappedHandler(object sender, System.EventArgs e)
+        protected virtual void TappedHandler(object sender, System.EventArgs e)
         {
-            twoSidedImage.Flip();
+            Flip();
             // TODO: magnify object instead of flipping
-        }
-
-        /// <summary>
-        /// Resize collider to match the new image.
-        /// </summary>
-        protected void SizeChangedHandler(object sender, Bounds bounds)
-        {
-            boxCollider.size = bounds.size;
         }
 
         #endregion

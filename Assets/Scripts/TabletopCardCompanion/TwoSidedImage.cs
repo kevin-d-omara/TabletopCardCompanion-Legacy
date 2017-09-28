@@ -53,5 +53,7 @@ namespace TabletopCardCompanion
             image.SetNativeSize();
             SizeChanged?.Invoke(this, newSprite.bounds);
         }
+
+        // TODO: make distinction FlipPhysically() & FlipInstantly()
     }
 }
