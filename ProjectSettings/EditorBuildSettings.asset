@@ -6,5 +6,8 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/MainMenu.unity
+    guid: f36bdd82eb28f8049a95724316e9fe1b
+  - enabled: 1
     path: Assets/Scenes/TestTouchScript.unity
     guid: 020d30a21d83c2e4491b47d1a9cf31e3

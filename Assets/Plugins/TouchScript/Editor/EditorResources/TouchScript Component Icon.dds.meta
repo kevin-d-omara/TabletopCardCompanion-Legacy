@@ -1,13 +1,16 @@
 fileFormatVersion: 2
-guid: e1e5ef31262d242ce8efe2020a27425e
+guid: 592f8c8d517ce7f49ba3d50b2a845f24
 timeCreated: 1501325322
 licenseType: Pro
 IHVImageFormatImporter:
   textureSettings:
+    serializedVersion: 2
     filterMode: 1
     aniso: 1
     mipBias: 0
-    wrapMode: 0
+    wrapU: 0
+    wrapV: 0
+    wrapW: 0
   isReadable: 0
   userData: 
   assetBundleName: 
